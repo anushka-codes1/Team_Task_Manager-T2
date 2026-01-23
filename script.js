@@ -3,8 +3,12 @@ const tasks = []; //Array which stores tasks
 const taskTitle = document.getElementById("taskTitle");
 const taskDescription = document.getElementById("taskDescription");
 const addTaskBtn = document.getElementById("addTaskButton");
-const taskList = document.getElementById("taskList");
+const pendingTaskList = document.getElementById("pendingTaskList");
+const ongoingTaskList = document.getElementById("ongoingTaskList");
 const completedTaskList = document.getElementById("completedTaskList");
+const pendingSection = document.getElementById("pendingSection");
+const ongoingSection = document.getElementById("ongoingSection");
+const completedSection = document.getElementById("completedSection");
 let editingTaskIndex = -1; // Track the index of the task being edited
 
 addTaskBtn.addEventListener("click", function () { //Adding or Updating the task event
@@ -43,8 +47,12 @@ addTaskBtn.addEventListener("click", function () { //Adding or Updating the task
 });
 
 function displayTasks() {
-    taskList.innerHTML = ""; // Clear current active list
-    completedTaskList.innerHTML = ""; // Clear current completed list
+    pendingTaskList.innerHTML = "";
+ongoingTaskList.innerHTML = "";
+completedTaskList.innerHTML = "";
+   pendingSection.style.display = "none";
+ongoingSection.style.display = "none";
+completedSection.style.display = "none";
 
     // Loop through the tasks array to create cards for each task
     tasks.forEach((task, index) => {
@@ -81,46 +89,55 @@ function displayTasks() {
         deleteBtn.classList.add("delete-btn");
         deleteBtn.addEventListener("click", () => deleteTask(index));
 
-        // Check if task is completed to determine button state and location
-        if (task.status === "Completed") {
-            statusBtn.innerText = "Completed";
-            statusBtn.disabled = true;
-            statusBtn.style.backgroundColor = "grey";
-            statusBtn.style.cursor = "not-allowed";
+       if (task.status === "Pending") {
+        pendingSection.style.display = "block";
+    statusBtn.innerText = "Start Task";
 
-            // Append elements
-            taskCard.appendChild(titleElement);
-            taskCard.appendChild(descriptionElement);
-            taskCard.appendChild(statusElement);
-            // Completed tasks get Delete button
-            taskCard.appendChild(deleteBtn);
-            // Completed tasks might not need Edit, but user asked for "Edit option also". 
-            // Often we don't edit completed history, but I will allow it for flexibility or disable it.
-            // Let's allow editing for all as interpreted.
-            taskCard.appendChild(editBtn);
+    statusBtn.onclick = function () {
+    task.status = "Ongoing";
+    displayTasks();
+};
 
-            completedTaskList.appendChild(taskCard);
-        } else {
-            statusBtn.innerText = "Update Status";
+    taskCard.appendChild(titleElement);
+    taskCard.appendChild(descriptionElement);
+    taskCard.appendChild(statusElement);
+    taskCard.appendChild(statusBtn);
+    taskCard.appendChild(editBtn);
+    taskCard.appendChild(deleteBtn);
 
-            statusBtn.addEventListener("click", function () {
-                if (task.status === "Pending") task.status = "Ongoing";
-                else if (task.status === "Ongoing") task.status = "Completed";
-                displayTasks();
-            });
+    pendingTaskList.appendChild(taskCard);
+}
+else if (task.status === "Ongoing") {
+    ongoingSection.style.display = "block";
+    statusBtn.innerText = "Complete Task";
 
-            // Append elements
-            taskCard.appendChild(titleElement);
-            taskCard.appendChild(descriptionElement);
-            taskCard.appendChild(statusElement);
-            taskCard.appendChild(statusBtn);
-            // Active tasks get Edit button
-            taskCard.appendChild(editBtn);
-            // Active tasks get Delete button too (good UX)
-            taskCard.appendChild(deleteBtn);
+   statusBtn.onclick = function () {
+    task.status = "Completed";
+    displayTasks();
+};
+    taskCard.appendChild(titleElement);
+    taskCard.appendChild(descriptionElement);
+    taskCard.appendChild(statusElement);
+    taskCard.appendChild(statusBtn);
+    taskCard.appendChild(editBtn);
+    taskCard.appendChild(deleteBtn);
 
-            taskList.appendChild(taskCard);
-        }
+    ongoingTaskList.appendChild(taskCard);
+}
+else if (task.status === "Completed") {
+    completedSection.style.display = "block";
+    statusBtn.innerText = "Completed";
+    statusBtn.disabled = true;
+    statusBtn.style.backgroundColor = "grey";
+    statusBtn.style.cursor = "not-allowed";
+
+    taskCard.appendChild(titleElement);
+    taskCard.appendChild(descriptionElement);
+    taskCard.appendChild(statusElement);
+    taskCard.appendChild(deleteBtn);
+
+    completedTaskList.appendChild(taskCard);
+}
     });
 }
 
