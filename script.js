@@ -4,6 +4,7 @@ const taskTitle = document.getElementById("taskTitle");
 const taskDescription = document.getElementById("taskDescription");
 const addTaskBtn = document.getElementById("addTaskButton");
 const taskList = document.getElementById("taskList");
+const completedTaskList = document.getElementById("completedTaskList");
 addTaskBtn.addEventListener("click", function () { //Adding the task event
     const title = taskTitle.value.trim();
     const description = taskDescription.value.trim();
@@ -31,10 +32,11 @@ addTaskBtn.addEventListener("click", function () { //Adding the task event
 });
 
 function displayTasks() {
-    taskList.innerHTML = ""; // Clear current list to prevent duplicates
+    taskList.innerHTML = ""; // Clear current active list
+    completedTaskList.innerHTML = ""; // Clear current completed list
 
     // Loop through the tasks array to create cards for each task
-    tasks.forEach((task, index) => {
+    tasks.forEach((task) => {
         // Create the main card container
         const taskCard = document.createElement("div");
         taskCard.classList.add("task-card");
@@ -54,31 +56,47 @@ function displayTasks() {
 
         // Create the status toggle button
         const statusBtn = document.createElement("button");
-        statusBtn.innerText = "Update Status";
         statusBtn.classList.add("status-btn"); // Add a class for styling
 
-        // Add event listener to handle status changes
-        statusBtn.addEventListener("click", function () {
-            // Logic to cycle through statuses: Pending -> Ongoing -> Completed -> Pending
-            if (task.status === "Pending") {
-                task.status = "Ongoing";
-            } else if (task.status === "Ongoing") {
-                task.status = "Completed";
-            } else {
-                task.status = "Pending";
-            }
+        // Check if task is completed to determine button state and location
+        if (task.status === "Completed") {
+            statusBtn.innerText = "Completed";
+            statusBtn.disabled = true; // Disable the button so it cannot be changed
+            statusBtn.style.backgroundColor = "grey"; // Visual cue that it's disabled
+            statusBtn.style.cursor = "not-allowed";
 
-            // Re-render the tasks to show the updated status immediately
-            displayTasks();
-        });
+            // Append all elements to the card
+            taskCard.appendChild(titleElement);
+            taskCard.appendChild(descriptionElement);
+            taskCard.appendChild(statusElement);
+            taskCard.appendChild(statusBtn);
 
-        // Append all elements to the card
-        taskCard.appendChild(titleElement);
-        taskCard.appendChild(descriptionElement);
-        taskCard.appendChild(statusElement);
-        taskCard.appendChild(statusBtn);
+            // Add to the completed list section
+            completedTaskList.appendChild(taskCard);
+        } else {
+            statusBtn.innerText = "Update Status";
 
-        // Append the card to the main list container
-        taskList.appendChild(taskCard);
+            // Add event listener to handle status changes only if not completed
+            statusBtn.addEventListener("click", function () {
+                // Logic to cycle through statuses: Pending -> Ongoing -> Completed
+                if (task.status === "Pending") {
+                    task.status = "Ongoing";
+                } else if (task.status === "Ongoing") {
+                    task.status = "Completed";
+                }
+
+                // Re-render the tasks to show the updated status
+                displayTasks();
+            });
+
+            // Append all elements to the card
+            taskCard.appendChild(titleElement);
+            taskCard.appendChild(descriptionElement);
+            taskCard.appendChild(statusElement);
+            taskCard.appendChild(statusBtn);
+
+            // Add to the active task list section
+            taskList.appendChild(taskCard);
+        }
     });
 }
